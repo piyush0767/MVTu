@@ -1,326 +1,152 @@
-<!
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Milk Route Tracker - Professional Driver Management System</title>
+  <title>Milk Route Tracker</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="header">
-    <div class="container">
-      <h1 class="logo">🥛 Milk Route Tracker</h1>
-      <button class="language-toggle" onclick="toggleLanguage()" aria-label="Toggle Language">
-        <span class="globe-icon">🌐</span>
-        <span class="toggle-text">English/हिंदी</span>
-      </button>
-    </div>
-  </header>
+  <!-- Language Toggle -->
+  <button onclick="toggleLanguage()" class="language-btn">🌐 Toggle Language</button>
 
-  <!-- Main Content -->
-  <main class="main-content">
-    <div class="container">
+  <!-- Driver Login -->
+  <div id="driverLoginSection">
+    <h2>Driver Login</h2>
+    <label id="labelRoute">Route Number</label><br>
+    <input id="routeNumber" type="text"><br>
 
-      <!-- Login Options -->
-      <div class="login-options">
-        
-        <!-- Driver Login -->
-        <div id="driverLoginSection" class="login-card">
-          <div class="card-header">
-            <h2 class="card-title">🚚 Driver Login</h2>
-            <p class="card-subtitle">Access your route dashboard</p>
-          </div>
-          
-          <form class="login-form" onsubmit="return false;">
-            <div class="form-group">
-              <label id="labelRoute" for="routeNumber">Route Number</label>
-              <input type="text" id="routeNumber" placeholder="Enter route number" required>
-            </div>
+    <label id="labelPassword">Password</label><br>
+    <input type="password" id="password"><br>
 
-            <div class="form-group">
-              <label id="labelPassword" for="password">Password</label>
-              <input type="password" id="password" placeholder="Enter password" required>
-            </div>
+    <label id="shiftLabel">Select Shift</label><br>
+    <select id="shiftSelector">
+      <option>Morning</option>
+      <option>Evening</option>
+    </select><br><br>
 
-            <div class="form-group">
-              <label id="shiftLabel" for="shiftSelector">Select Shift</label>
-              <select id="shiftSelector" required>
-                <option value="Morning">Morning</option>
-                <option value="Evening">Evening</option>
-              </select>
-            </div>
-
-            <button type="button" id="driverLoginButton" class="btn btn-primary" onclick="driverLogin()">
-              Login
-            </button>
-          </form>
-        </div>
-
-        <!-- Admin Login -->
-        <div id="adminLoginSection" class="login-card">
-          <div class="card-header">
-            <h2 id="adminLoginTitle" class="card-title">👤 Admin Login</h2>
-            <p class="card-subtitle">Manage routes and view reports</p>
-          </div>
-          
-          <form class="login-form" onsubmit="return false;">
-            <div class="form-group">
-              <label for="adminUsername">Username</label>
-              <input type="text" id="adminUsername" placeholder="Enter username" required>
-            </div>
-
-            <div class="form-group">
-              <label for="adminPassword">Password</label>
-              <input type="password" id="adminPassword" placeholder="Enter password" required>
-            </div>
-
-            <button type="button" class="btn btn-secondary" onclick="adminLogin()">
-              Login as Admin
-            </button>
-          </form>
-        </div>
-
-      </div>
-
-      <!-- Driver Dashboard -->
-      <div class="driver-section hidden">
-        <div class="dashboard-card">
-          <div class="dashboard-header">
-            <h2>Welcome, Driver!</h2>
-            <button class="btn btn-outline logout-btn" onclick="logout()">Logout</button>
-          </div>
-          
-          <div class="driver-info">
-            <div class="info-item">
-              <span class="info-label">Route:</span>
-              <span id="driverRoute" class="info-value"></span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Shift:</span>
-              <span id="shiftDisplay" class="info-value"></span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Login Time:</span>
-              <span id="loginTime" class="info-value"></span>
-            </div>
-          </div>
-          
-          <div id="societyList" class="society-list"></div>
-        </div>
-      </div>
-
-      <!-- Admin Dashboard -->
-      <div class="admin-section hidden">
-        <div class="admin-header">
-          <h2>Admin Dashboard</h2>
-          <button class="btn btn-outline logout-btn" onclick="logout()">Logout</button>
-        </div>
-
-        <!-- Navigation Tabs -->
-        <nav class="admin-tabs">
-          <button class="tab-btn active" onclick="showAdminTab('routes')">
-            <span class="tab-icon">🚚</span>
-            Routes
-          </button>
-          <button class="tab-btn" onclick="showAdminTab('logs')">
-            <span class="tab-icon">📋</span>
-            Logs
-          </button>
-          <button class="tab-btn" onclick="showAdminTab('summary')">
-            <span class="tab-icon">📊</span>
-            Summary
-          </button>
-          <button class="tab-btn" onclick="showAdminTab('settings')">
-            <span class="tab-icon">⚙️</span>
-            Settings
-          </button>
-        </nav>
-
-        <!-- Tab Content -->
-        <div class="tab-content">
-          
-          <!-- Routes Tab -->
-          <div class="admin-tab" id="adminTab-routes">
-            <h3>Route & Society Management</h3>
-            <div id="routeManagementArea" class="management-area">
-              Loading...
-            </div>
-          </div>
-
-          <!-- Logs Tab -->
-          <div class="admin-tab hidden" id="adminTab-logs">
-            <h3>Driver Visit Logs</h3>
-            <div class="filters-section">
-              <div class="filter-group">
-                <label for="adminDate">Date:</label>
-                <input type="date" id="adminDate">
-              </div>
-              <div class="filter-group">
-                <label for="adminRouteFilter">Route:</label>
-                <select id="adminRouteFilter">
-                  <option value="">All Routes</option>
-                </select>
-              </div>
-              <div class="filter-group">
-                <label for="adminShiftFilter">Shift:</label>
-                <select id="adminShiftFilter">
-                  <option value="">All Shifts</option>
-                  <option value="Morning">Morning</option>
-                  <option value="Evening">Evening</option>
-                </select>
-              </div>
-              <button class="btn btn-primary" onclick="filterDriverLogs()">
-                🔍 Apply Filters
-              </button>
-            </div>
-            <div id="adminStatusTable" class="table-container"></div>
-          </div>
-
-          <!-- Summary Tab -->
-          <div class="admin-tab hidden" id="adminTab-summary">
-            <h3>Daily Visit Summary</h3>
-            <div class="filters-section">
-              <div class="filter-group">
-                <label for="summaryDateFilter">Date:</label>
-                <input type="date" id="summaryDateFilter">
-              </div>
-              <div class="filter-group">
-                <label for="summaryRouteFilter">Route:</label>
-                <select id="summaryRouteFilter">
-                  <option value="">Select Route</option>
-                </select>
-              </div>
-              <button class="btn btn-primary" onclick="loadAdminSummary()">
-                🔍 View Summary
-              </button>
-              <button class="btn btn-outline" onclick="exportCSV()">
-                📤 Export CSV
-              </button>
-            </div>
-            
-            <div class="table-container">
-              <table id="summaryTable" class="data-table">
-                <thead>
-                  <tr>
-                    <th>Society</th>
-                    <th>Arrival Time</th>
-                    <th>Departure Time</th>
-                    <th>Duration</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Settings Tab -->
-          <div class="admin-tab hidden" id="adminTab-settings">
-            <h3>System Settings</h3>
-            <div class="settings-section">
-              <div class="setting-item danger">
-                <h4>Reset Application Data</h4>
-                <p>This will permanently delete all route data, logs, and settings.</p>
-                <button class="btn btn-danger" onclick="resetApp()">
-                  🧨 Reset All Data
-                </button>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </main>
-
-  <!-- Toast Notifications -->
-  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
-
-  <!-- Quick Reset (Dev Tool) -->
-  <div class="dev-tools">
-    <button class="btn btn-sm btn-outline" onclick="localStorage.clear(); location.reload()" title="Reset Application">
-      🔄 Quick Reset
-    </button>
+    <button id="driverLoginButton" onclick="driverLogin()">Login</button>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Admin Login -->
+  <div id="adminLoginSection">
+    <h2 id="adminLoginTitle">Admin Login</h2>
+    <input id="adminUsername" placeholder="Username" type="text"><br>
+    <input type="password" id="adminPassword" placeholder="Password"><br>
+    <button onclick="adminLogin()">Login as Admin</button>
+  </div>
 
+  <!-- Driver Section (Initially Hidden) -->
+  <div class="driver-section hidden">
+    <h3>Welcome, Driver!</h3>
+    <p id="driverRoute"></p>
+    <p id="shiftDisplay"></p>
+    <p id="loginTime"></p>
+    <div id="societyList"></div>
+  </div>
+
+  <!-- Admin Panel (Initially Hidden) -->
+  <div class="admin-section hidden">
+    <!-- Navigation Tabs -->
+    <div class="admin-tabs">
+      <button onclick="showAdminTab('routes')">🚚 Routes</button>
+      <button onclick="showAdminTab('logs')">📋 Logs</button>
+      <button onclick="showAdminTab('summary')">📊 Summary</button>
+      <button onclick="showAdminTab('settings')">⚙️ Settings</button>
+    </div>
+
+    <!-- ROUTE MANAGEMENT TAB -->
+    <div class="admin-tab" id="adminTab-routes">
+      <h2>🚚 Route & Society Management</h2>
+      
+      <!-- Add New Route -->
+      <div class="section">
+        <h3>Add New Route</h3>
+        <input id="newRouteNumber" placeholder="Route Number" type="text">
+        <button onclick="addRoute()">Add Route</button>
+      </div>
+
+      <!-- Bulk Add Route -->
+      <div class="section">
+        <h3>Bulk Add Route & Societies</h3>
+        <input id="bulkRouteNumber" placeholder="Route Number" type="text"><br>
+        <textarea id="bulkSocieties" placeholder="Paste societies (one per line or comma separated)"></textarea><br>
+        <button onclick="bulkAddRoute()">Bulk Add</button>
+      </div>
+
+      <!-- Edit Existing Route -->
+      <div class="section">
+        <h3>Edit Route</h3>
+        <select id="routeSelector" onchange="loadSocietiesForEdit()"></select>
+        <div id="societyEditor"></div>
+        <input id="newSocietyName" placeholder="New Society Name" type="text">
+        <button onclick="addSociety()">Add Society</button>
+      </div>
+    </div>
+
+    <!-- LOGS TAB -->
+    <div class="admin-tab hidden" id="adminTab-logs">
+      <h2>📋 Driver Visit Logs</h2>
+      <div class="filters">
+        <label>Date:</label>
+        <input type="date" id="filterDate">
+        
+        <label>Route:</label>
+        <select id="filterRoute"></select>
+        
+        <label>Shift:</label>
+        <select id="filterShift">
+          <option value="">All Shifts</option>
+          <option value="Morning">Morning</option>
+          <option value="Evening">Evening</option>
+        </select>
+        
+        <button onclick="applyAdminFilters()">🔍 Apply Filters</button>
+      </div>
+      <div id="adminStatusTable"></div>
+    </div>
+
+    <!-- SUMMARY TAB -->
+    <div class="admin-tab hidden" id="adminTab-summary">
+      <h2>📊 Daily Visit Summary</h2>
+      <div class="filters">
+        <label>Date:</label>
+        <input type="date" id="summaryDateFilter">
+        
+        <label>Route:</label>
+        <select id="summaryRouteFilter"></select>
+        
+        <button onclick="loadAdminSummary()">🔍 View Summary</button>
+        <button onclick="exportCSV()">📤 Export CSV</button>
+      </div>
+
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>Society</th>
+            <th>Arrival</th>
+            <th>Departure</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="admin-tab hidden" id="adminTab-settings">
+      <h2>⚙️ Admin Settings</h2>
+      <button onclick="resetApp()">🧨 Reset All Data</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Reset App -->
+  <button onclick="resetApp()" class="reset-btn">🔁 Reset App</button>
+
+  <script src="script.js"></script>
 </body>
 </html>
- html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Milk Route Tracker - Professional Driver Management System</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-
-  <!-- Header -->
-  <header class="header">
-    <div class="container">
-      <h1 class="logo">🥛 Milk Route Tracker</h1>
-      <button class="language-toggle" onclick="toggleLanguage()" aria-label="Toggle Language">
-        <span class="globe-icon">🌐</span>
-        <span class="toggle-text">English/हिंदी</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <div class="container">
-
-      <!-- Login Options -->
-      <div class="login-options">
-        
-        <!-- Driver Login -->
-        <div id="driverLoginSection" class="login-card">
-          <div class="card-header">
-            <h2 class="card-title">🚚 Driver Login</h2>
-            <p class="card-subtitle">Access your route dashboard</p>
-          </div>
-          
-          <form class="login-form" onsubmit="return false;">
-            <div class="form-group">
-              <label id="labelRoute" for="routeNumber">Route Number</label>
-              <input type="text" id="routeNumber" placeholder="Enter route number" required>
-            </div>
-
-            <div class="form-group">
-              <label id="labelPassword" for="password">Password</label>
-              <input type="password" id="password" placeholder="Enter password" required>
-            </div>
-
-            <div class="form-group">
-              <label id="shiftLabel" for="shiftSelector">Select Shift</label>
-              <select id="shiftSelector" required>
-                <option value="Morning">Morning</option>
-                <option value="Evening">Evening</option>
-              </select>
-            </div>
-
-            <button type="button" id="driverLoginButton" class="btn btn-primary" onclick="driverLogin()">
-              Login
-            </button>
-          </form>
-        </div>
-
-        <!-- Admin Login -->
-        <div id="adminLoginSection" class="login-card">
-          <div class="card-header">
-            <h2 id="adminLoginTitle" class="card-title">👤 Admin Login</h2>
-            <p class="card-subtitle">Manage routes and view reports</p>
-          </div>
-          
-          <form class="login-form" onsubmit="return false;">
