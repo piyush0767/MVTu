@@ -1,13 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Milk Route Analytics</title>
+  <title>Milk Route Tracker</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -16,343 +13,258 @@
 
   <!-- Driver Login -->
   <div id="driverLoginSection">
-    <div class="login-container">
-      <h2>🚛 Driver Login</h2>
-      <div class="input-group">
-        <label id="labelRoute">Route Number</label>
-        <input id="routeNumber" type="text" placeholder="Enter route number">
-      </div>
+    <h2>Driver Login</h2>
+    <label id="labelRoute">Route Number</label><br>
+    <input id="routeNumber" type="text"><br>
 
-      <div class="input-group">
-        <label id="labelPassword">Password</label>
-        <input type="password" id="password" placeholder="Enter password">
-      </div>
+    <label id="labelPassword">Password</label><br>
+    <input type="password" id="password"><br>
 
-      <div class="input-group">
-        <label id="shiftLabel">Select Shift</label>
-        <select id="shiftSelector">
-          <option>Morning</option>
-          <option>Evening</option>
-        </select>
-      </div>
+    <label id="shiftLabel">Select Shift</label><br>
+    <select id="shiftSelector">
+      <option>Morning</option>
+      <option>Evening</option>
+    </select><br><br>
 
-      <button id="driverLoginButton" onclick="driverLogin()" class="primary-btn">Login</button>
-    </div>
+    <button id="driverLoginButton" onclick="driverLogin()">Login</button>
   </div>
 
   <!-- Admin Login -->
   <div id="adminLoginSection">
-    <div class="login-container">
-      <h2 id="adminLoginTitle">👨‍💼 Admin Login</h2>
-      <div class="input-group">
-        <input id="adminUsername" placeholder="Username" type="text">
-      </div>
-      <div class="input-group">
-        <input type="password" id="adminPassword" placeholder="Password">
-      </div>
-      <button onclick="adminLogin()" class="primary-btn">Login as Admin</button>
-    </div>
+    <h2 id="adminLoginTitle">Admin Login</h2>
+    <input id="adminUsername" placeholder="Username" type="text"><br>
+    <input type="password" id="adminPassword" placeholder="Password"><br>
+    <button onclick="adminLogin()">Login as Admin</button>
   </div>
 
-  <!-- Driver Section -->
+  <!-- Driver Section (Initially Hidden) -->
   <div class="driver-section hidden">
-    <div class="driver-header">
-      <h3>Welcome, Driver!</h3>
-      <div class="driver-info">
-        <div class="info-card">
-          <span id="driverRoute"></span>
-        </div>
-        <div class="info-card">
-          <span id="shiftDisplay"></span>
-        </div>
-        <div class="info-card">
-          <span id="loginTime"></span>
-        </div>
-      </div>
-    </div>
-    <div id="societyList" class="society-grid"></div>
-    <button onclick="logout()" class="logout-btn">Logout</button>
+    <h3>Welcome, Driver!</h3>
+    <p id="driverRoute"></p>
+    <p id="shiftDisplay"></p>
+    <p id="loginTime"></p>
+    <div id="societyList"></div>
   </div>
 
-  <!-- Admin Panel -->
+  <!-- Admin Panel (Initially Hidden) -->
   <div class="admin-section hidden">
-    <!-- Advanced Navigation -->
-    <div class="admin-header">
-      <h1>📊 Advanced Route Analytics Dashboard</h1>
-      <div class="admin-tabs">
-        <button onclick="showAdminTab('dashboard')" class="tab-btn active">📊 Dashboard</button>
-        <button onclick="showAdminTab('analytics')" class="tab-btn">📈 Analytics</button>
-        <button onclick="showAdminTab('routes')" class="tab-btn">🚚 Routes</button>
-        <button onclick="showAdminTab('performance')" class="tab-btn">⚡ Performance</button>
-        <button onclick="showAdminTab('reports')" class="tab-btn">📋 Reports</button>
-        <button onclick="showAdminTab('settings')" class="tab-btn">⚙️ Settings</button>
-      </div>
-    </div>
-
-    <!-- DASHBOARD TAB -->
-    <div class="admin-tab" id="adminTab-dashboard">
-      <div class="dashboard-grid">
-        <!-- Key Metrics -->
-        <div class="metric-cards">
-          <div class="metric-card">
-            <div class="metric-value" id="totalRoutes">0</div>
-            <div class="metric-label">Total Routes</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value" id="activeTracks">0</div>
-            <div class="metric-label">Active Tracks Today</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value" id="avgHoldTime">0</div>
-            <div class="metric-label">Avg Hold Time</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value" id="efficiency">0%</div>
-            <div class="metric-label">Route Efficiency</div>
-          </div>
-        </div>
-
-        <!-- Today's Activity Chart -->
-        <div class="chart-container">
-          <h3>Today's Route Activity</h3>
-          <canvas id="todayActivityChart"></canvas>
-        </div>
-
-        <!-- Route Performance Comparison -->
-        <div class="chart-container">
-          <h3>Route Performance Comparison</h3>
-          <canvas id="performanceComparisonChart"></canvas>
-        </div>
-
-        <!-- Live Status Table -->
-        <div class="live-status">
-          <h3>Live Route Status</h3>
-          <table id="liveStatusTable">
-            <thead>
-              <tr>
-                <th>Route</th>
-                <th>Shift</th>
-                <th>Current Society</th>
-                <th>Status</th>
-                <th>Hold Time</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ANALYTICS TAB -->
-    <div class="admin-tab hidden" id="adminTab-analytics">
-      <div class="analytics-controls">
-        <h2>📈 Advanced Analytics</h2>
-        <div class="filter-row">
-          <select id="analyticsRoute">
-            <option value="">All Routes</option>
-          </select>
-          <input type="date" id="analyticsStartDate">
-          <input type="date" id="analyticsEndDate">
-          <select id="analyticsMetric">
-            <option value="holdTime">Hold Time Analysis</option>
-            <option value="efficiency">Route Efficiency</option>
-            <option value="comparison">Day Comparison</option>
-            <option value="society">Society Performance</option>
-          </select>
-          <button onclick="generateAnalytics()" class="primary-btn">Generate</button>
-        </div>
-      </div>
-
-      <div class="analytics-results">
-        <!-- Trend Analysis Chart -->
-        <div class="chart-container">
-          <h3 id="analyticsChartTitle">Analytics Results</h3>
-          <canvas id="analyticsChart"></canvas>
-        </div>
-
-        <!-- Detailed Statistics -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <h4>Best Performance</h4>
-            <div id="bestPerformance">-</div>
-          </div>
-          <div class="stat-card">
-            <h4>Worst Performance</h4>
-            <div id="worstPerformance">-</div>
-          </div>
-          <div class="stat-card">
-            <h4>Average Time</h4>
-            <div id="averageTime">-</div>
-          </div>
-          <div class="stat-card">
-            <h4>Improvement</h4>
-            <div id="improvement">-</div>
-          </div>
-        </div>
-
-        <!-- Comparison Table -->
-        <div class="comparison-table">
-          <h3>Detailed Comparison</h3>
-          <table id="comparisonTable">
-            <thead>
-              <tr>
-                <th>Route/Society</th>
-                <th>Yesterday</th>
-                <th>Today</th>
-                <th>Difference</th>
-                <th>Trend</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
+    <!-- Navigation Tabs -->
+    <div class="admin-tabs">
+      <button onclick="showAdminTab('routes')">🚚 Routes</button>
+      <button onclick="showAdminTab('logs')">📋 Logs</button>
+      <button onclick="showAdminTab('summary')">📊 Summary</button>
+      <button onclick="showAdminTab('comparison')">🔄 Compare</button>
+      <button onclick="showAdminTab('society')">🏢 Society</button>
+      <button onclick="showAdminTab('historical')">📈 History</button>
+      <button onclick="showAdminTab('settings')">⚙️ Settings</button>
     </div>
 
     <!-- ROUTE MANAGEMENT TAB -->
-    <div class="admin-tab hidden" id="adminTab-routes">
+    <div class="admin-tab" id="adminTab-routes">
       <h2>🚚 Route & Society Management</h2>
       
-      <div class="section-grid">
-        <!-- Add New Route -->
-        <div class="section">
-          <h3>Add New Route</h3>
-          <div class="input-group">
-            <input id="newRouteNumber" placeholder="Route Number" type="text">
-            <button onclick="addRoute()" class="primary-btn">Add Route</button>
-          </div>
-        </div>
+      <!-- Add New Route -->
+      <div class="section">
+        <h3>Add New Route</h3>
+        <input id="newRouteNumber" placeholder="Route Number" type="text">
+        <button onclick="addRoute()">Add Route</button>
+      </div>
 
-        <!-- Bulk Add Route -->
-        <div class="section">
-          <h3>Bulk Add Route & Societies</h3>
-          <input id="bulkRouteNumber" placeholder="Route Number" type="text">
-          <textarea id="bulkSocieties" placeholder="Paste societies (one per line or comma separated)" rows="5"></textarea>
-          <button onclick="bulkAddRoute()" class="primary-btn">Bulk Add</button>
-        </div>
+      <!-- Bulk Add Route -->
+      <div class="section">
+        <h3>Bulk Add Route & Societies</h3>
+        <input id="bulkRouteNumber" placeholder="Route Number" type="text"><br>
+        <textarea id="bulkSocieties" placeholder="Paste societies (one per line or comma separated)"></textarea><br>
+        <button onclick="bulkAddRoute()">Bulk Add</button>
+      </div>
 
-        <!-- Edit Existing Route -->
-        <div class="section">
-          <h3>Edit Route</h3>
-          <select id="routeSelector" onchange="loadSocietiesForEdit()">
-            <option value="">Select Route</option>
-          </select>
-          <div id="societyEditor"></div>
-          <div class="input-group">
-            <input id="newSocietyName" placeholder="New Society Name" type="text">
-            <button onclick="addSociety()" class="primary-btn">Add Society</button>
-          </div>
-        </div>
+      <!-- Edit Existing Route -->
+      <div class="section">
+        <h3>Edit Route</h3>
+        <select id="routeSelector" onchange="loadSocietiesForEdit()"></select>
+        <div id="societyEditor"></div>
+        <input id="newSocietyName" placeholder="New Society Name" type="text">
+        <button onclick="addSociety()">Add Society</button>
       </div>
     </div>
 
-    <!-- PERFORMANCE TAB -->
-    <div class="admin-tab hidden" id="adminTab-performance">
-      <h2>⚡ Performance Metrics</h2>
-      
-      <div class="performance-filters">
-        <select id="perfRoute">
-          <option value="">All Routes</option>
+    <!-- LOGS TAB -->
+    <div class="admin-tab hidden" id="adminTab-logs">
+      <h2>📋 Driver Visit Logs</h2>
+      <div class="filters">
+        <label>Date:</label>
+        <input type="date" id="filterDate">
+        
+        <label>Route:</label>
+        <select id="filterRoute"></select>
+        
+        <label>Shift:</label>
+        <select id="filterShift">
+          <option value="">All Shifts</option>
+          <option value="Morning">Morning</option>
+          <option value="Evening">Evening</option>
         </select>
-        <select id="perfPeriod">
-          <option value="today">Today</option>
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-        </select>
-        <button onclick="loadPerformanceData()" class="primary-btn">Load Data</button>
+        
+        <button onclick="applyAdminFilters()">🔍 Apply Filters</button>
       </div>
-
-      <div class="performance-grid">
-        <!-- Performance Charts -->
-        <div class="chart-container">
-          <h3>Route Completion Times</h3>
-          <canvas id="completionChart"></canvas>
-        </div>
-
-        <div class="chart-container">
-          <h3>Society Hold Times</h3>
-          <canvas id="holdTimeChart"></canvas>
-        </div>
-
-        <!-- Performance Rankings -->
-        <div class="rankings">
-          <h3>Top Performing Routes</h3>
-          <div id="topRoutes" class="ranking-list"></div>
-        </div>
-
-        <div class="rankings">
-          <h3>Routes Needing Attention</h3>
-          <div id="poorRoutes" class="ranking-list"></div>
-        </div>
-      </div>
+      <div id="adminStatusTable"></div>
     </div>
 
-    <!-- REPORTS TAB -->
-    <div class="admin-tab hidden" id="adminTab-reports">
-      <h2>📋 Reports & Export</h2>
-      
-      <div class="report-controls">
-        <div class="filter-row">
-          <select id="reportType">
-            <option value="daily">Daily Report</option>
-            <option value="weekly">Weekly Summary</option>
-            <option value="monthly">Monthly Analysis</option>
-            <option value="custom">Custom Report</option>
-          </select>
-          <input type="date" id="reportStartDate">
-          <input type="date" id="reportEndDate">
-          <select id="reportRoute">
-            <option value="">All Routes</option>
-          </select>
-          <button onclick="generateReport()" class="primary-btn">Generate Report</button>
-          <button onclick="exportReport()" class="export-btn">📄 Export PDF</button>
-        </div>
+    <!-- SUMMARY TAB -->
+    <div class="admin-tab hidden" id="adminTab-summary">
+      <h2>📊 Daily Visit Summary</h2>
+      <div class="filters">
+        <label>Date:</label>
+        <input type="date" id="summaryDateFilter">
+        
+        <label>Route:</label>
+        <select id="summaryRouteFilter"></select>
+        
+        <label>Shift:</label>
+        <select id="summaryShiftFilter">
+          <option value="">Both Shifts</option>
+          <option value="Morning">Morning</option>
+          <option value="Evening">Evening</option>
+        </select>
+        
+        <button onclick="loadAdminSummary()">🔍 View Summary</button>
+        <button onclick="exportCSV()">📤 Export CSV</button>
       </div>
 
-      <div id="reportResults" class="report-container">
-        <!-- Report content will be generated here -->
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>Shift</th>
+            <th>Society</th>
+            <th>Arrival</th>
+            <th>Departure</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- ROUTE COMPARISON TAB -->
+    <div class="admin-tab hidden" id="adminTab-comparison">
+      <h2>🔄 Route Comparison Analytics</h2>
+      <div class="filters">
+        <label>Route:</label>
+        <select id="comparisonRoute"></select>
+        
+        <label>Date 1:</label>
+        <input type="date" id="comparisonDate1">
+        
+        <label>Date 2:</label>
+        <input type="date" id="comparisonDate2">
+        
+        <label>Shift:</label>
+        <select id="comparisonShift">
+          <option value="">Both Shifts</option>
+          <option value="Morning">Morning</option>
+          <option value="Evening">Evening</option>
+        </select>
+        
+        <button onclick="loadRouteComparison()">🔍 Compare Days</button>
       </div>
+
+      <table id="comparisonTable">
+        <thead>
+          <tr>
+            <th>Shift</th>
+            <th>Society</th>
+            <th colspan="2">Date 1 Data</th>
+            <th colspan="2">Date 2 Data</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th></th>
+            <th>Arrival</th>
+            <th>Duration</th>
+            <th>Arrival</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- SOCIETY ANALYTICS TAB -->
+    <div class="admin-tab hidden" id="adminTab-society">
+      <h2>🏢 Society-wise Analytics</h2>
+      <div class="filters">
+        <label>Route:</label>
+        <select id="societyAnalyticsRoute" onchange="populateSocietyDropdown()"></select>
+        
+        <label>Society:</label>
+        <select id="societyAnalyticsName"></select>
+        
+        <label>From Date:</label>
+        <input type="date" id="societyFromDate">
+        
+        <label>To Date:</label>
+        <input type="date" id="societyToDate">
+        
+        <button onclick="loadSocietyAnalytics()">🔍 View Analytics</button>
+      </div>
+
+      <table id="societyAnalyticsTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Shift</th>
+            <th>Arrival</th>
+            <th>Departure</th>
+            <th>Hold Time</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- HISTORICAL DATA TAB -->
+    <div class="admin-tab hidden" id="adminTab-historical">
+      <h2>📈 Historical Data Analysis</h2>
+      <div class="filters">
+        <label>Route:</label>
+        <select id="historicalRoute"></select>
+        
+        <label>From Date:</label>
+        <input type="date" id="historicalFromDate">
+        
+        <label>To Date:</label>
+        <input type="date" id="historicalToDate">
+        
+        <button onclick="loadHistoricalData()">🔍 Load History</button>
+      </div>
+
+      <table id="historicalTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Shift</th>
+            <th>Society</th>
+            <th>Arrival</th>
+            <th>Departure</th>
+            <th>Hold Time</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
 
     <!-- SETTINGS TAB -->
     <div class="admin-tab hidden" id="adminTab-settings">
-      <h2>⚙️ System Settings</h2>
-      
-      <div class="settings-grid">
-        <div class="setting-group">
-          <h3>Alert Thresholds</h3>
-          <div class="input-group">
-            <label>Max Hold Time (minutes):</label>
-            <input type="number" id="maxHoldTime" value="30">
-          </div>
-          <div class="input-group">
-            <label>Route Delay Alert (minutes):</label>
-            <input type="number" id="delayAlert" value="15">
-          </div>
-        </div>
-
-        <div class="setting-group">
-          <h3>Data Management</h3>
-          <button onclick="backupData()" class="primary-btn">📦 Backup Data</button>
-          <button onclick="resetApp()" class="danger-btn">🗑️ Reset All Data</button>
-        </div>
-
-        <div class="setting-group">
-          <h3>System Info</h3>
-          <div class="info-display">
-            <p>Total Records: <span id="totalRecords">0</span></p>
-            <p>Data Size: <span id="dataSize">0 KB</span></p>
-            <p>Last Backup: <span id="lastBackup">Never</span></p>
-          </div>
-        </div>
-      </div>
+      <h2>⚙️ Admin Settings</h2>
+      <button onclick="resetApp()">🧨 Reset All Data</button>
     </div>
-
-    <button onclick="logout()" class="logout-btn">Logout</button>
   </div>
 
   <!-- Toast Notification -->
   <div id="toast" class="toast"></div>
+
+  <!-- Reset App -->
+  <button onclick="resetApp()" class="reset-btn">🔁 Reset App</button>
 
   <script src="script.js"></script>
 </body>
