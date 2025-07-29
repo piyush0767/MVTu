@@ -304,6 +304,7 @@ function populateFilterDropdowns() {
 }
 
 function populateSummaryDropdowns() {
+  // Summary tab dropdowns
   const summaryFilter = document.getElementById("summaryRouteFilter");
   if (summaryFilter) {
     summaryFilter.innerHTML = '<option value="">Select Route</option>';
@@ -312,6 +313,59 @@ function populateSummaryDropdowns() {
       option.value = route;
       option.textContent = route;
       summaryFilter.appendChild(option);
+    });
+  }
+
+  // Comparison tab dropdowns
+  const comparisonRoute = document.getElementById("comparisonRoute");
+  if (comparisonRoute) {
+    comparisonRoute.innerHTML = '<option value="">Select Route</option>';
+    Object.keys(routeData).forEach(route => {
+      const option = document.createElement("option");
+      option.value = route;
+      option.textContent = route;
+      comparisonRoute.appendChild(option);
+    });
+  }
+
+  // Society Analytics dropdown
+  const societyAnalyticsRoute = document.getElementById("societyAnalyticsRoute");
+  if (societyAnalyticsRoute) {
+    societyAnalyticsRoute.innerHTML = '<option value="">Select Route</option>';
+    Object.keys(routeData).forEach(route => {
+      const option = document.createElement("option");
+      option.value = route;
+      option.textContent = route;
+      societyAnalyticsRoute.appendChild(option);
+    });
+  }
+
+  // Historical data dropdown
+  const historicalRoute = document.getElementById("historicalRoute");
+  if (historicalRoute) {
+    historicalRoute.innerHTML = '<option value="">Select Route</option>';
+    Object.keys(routeData).forEach(route => {
+      const option = document.createElement("option");
+      option.value = route;
+      option.textContent = route;
+      historicalRoute.appendChild(option);
+    });
+  }
+}
+
+// ========== POPULATE SOCIETY DROPDOWN ==========
+function populateSocietyDropdown() {
+  const route = document.getElementById("societyAnalyticsRoute").value;
+  const societyDropdown = document.getElementById("societyAnalyticsName");
+  
+  societyDropdown.innerHTML = '<option value="">Select Society</option>';
+  
+  if (route && routeData[route]) {
+    routeData[route].societies.forEach(society => {
+      const option = document.createElement("option");
+      option.value = society;
+      option.textContent = society;
+      societyDropdown.appendChild(option);
     });
   }
 }
@@ -382,6 +436,7 @@ function applyAdminFilters() {
 function loadAdminSummary() {
   const date = document.getElementById("summaryDateFilter").value;
   const route = document.getElementById("summaryRouteFilter").value;
+  const shift = document.getElementById("summaryShiftFilter").value;
   const tbody = document.querySelector("#summaryTable tbody");
 
   tbody.innerHTML = "";
@@ -391,8 +446,10 @@ function loadAdminSummary() {
     return;
   }
 
-  ["Morning", "Evening"].forEach(shift => {
-    const statusKey = `status_${route}_${shift}_${date}`;
+  const shifts = shift ? [shift] : ["Morning", "Evening"];
+
+  shifts.forEach(currentShift => {
+    const statusKey = `status_${route}_${currentShift}_${date}`;
     const statusObj = JSON.parse(localStorage.getItem(statusKey)) || {};
 
     Object.keys(statusObj).forEach(society => {
@@ -405,6 +462,7 @@ function loadAdminSummary() {
       }
 
       row.innerHTML = `
+        <td>${currentShift}</td>
         <td>${society}</td>
         <td>${status.arrival || "-"}</td>
         <td>${status.departure || "-"}</td>
@@ -413,6 +471,152 @@ function loadAdminSummary() {
       tbody.appendChild(row);
     });
   });
+}
+
+// ========== ROUTE COMPARISON ==========
+function loadRouteComparison() {
+  const route = document.getElementById("comparisonRoute").value;
+  const date1 = document.getElementById("comparisonDate1").value;
+  const date2 = document.getElementById("comparisonDate2").value;
+  const shift = document.getElementById("comparisonShift").value;
+  const tbody = document.querySelector("#comparisonTable tbody");
+
+  tbody.innerHTML = "";
+
+  if (!route || !date1 || !date2) {
+    showToast("Please select route and both dates", true);
+    return;
+  }
+
+  const shifts = shift ? [shift] : ["Morning", "Evening"];
+
+  shifts.forEach(currentShift => {
+    // Get data for both dates
+    const statusKey1 = `status_${route}_${currentShift}_${date1}`;
+    const statusKey2 = `status_${route}_${currentShift}_${date2}`;
+    const data1 = JSON.parse(localStorage.getItem(statusKey1)) || {};
+    const data2 = JSON.parse(localStorage.getItem(statusKey2)) || {};
+
+    // Get all societies from both dates
+    const allSocieties = new Set([...Object.keys(data1), ...Object.keys(data2)]);
+
+    allSocieties.forEach(society => {
+      const status1 = data1[society] || {};
+      const status2 = data2[society] || {};
+
+      const duration1 = (status1.arrival && status1.departure) ? 
+        calculateDuration(status1.arrival, status1.departure) : "-";
+      const duration2 = (status2.arrival && status2.departure) ? 
+        calculateDuration(status2.arrival, status2.departure) : "-";
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${currentShift}</td>
+        <td>${society}</td>
+        <td>${status1.arrival || "-"}</td>
+        <td>${duration1}</td>
+        <td>${status2.arrival || "-"}</td>
+        <td>${duration2}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  });
+}
+
+// ========== SOCIETY ANALYTICS ==========
+function loadSocietyAnalytics() {
+  const route = document.getElementById("societyAnalyticsRoute").value;
+  const society = document.getElementById("societyAnalyticsName").value;
+  const fromDate = document.getElementById("societyFromDate").value;
+  const toDate = document.getElementById("societyToDate").value;
+  const tbody = document.querySelector("#societyAnalyticsTable tbody");
+
+  tbody.innerHTML = "";
+
+  if (!route || !society || !fromDate || !toDate) {
+    showToast("Please fill all fields", true);
+    return;
+  }
+
+  const startDate = new Date(fromDate);
+  const endDate = new Date(toDate);
+
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().slice(0, 10);
+
+    ["Morning", "Evening"].forEach(shift => {
+      const statusKey = `status_${route}_${shift}_${dateStr}`;
+      const statusObj = JSON.parse(localStorage.getItem(statusKey)) || {};
+
+      if (statusObj[society]) {
+        const status = statusObj[society];
+        const duration = (status.arrival && status.departure) ? 
+          calculateDuration(status.arrival, status.departure) : "-";
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${dateStr}</td>
+          <td>${shift}</td>
+          <td>${status.arrival || "-"}</td>
+          <td>${status.departure || "-"}</td>
+          <td>${duration}</td>
+        `;
+        tbody.appendChild(row);
+      }
+    });
+  }
+
+  if (tbody.children.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5">No data found for selected criteria</td></tr>';
+  }
+}
+
+// ========== HISTORICAL DATA ==========
+function loadHistoricalData() {
+  const route = document.getElementById("historicalRoute").value;
+  const fromDate = document.getElementById("historicalFromDate").value;
+  const toDate = document.getElementById("historicalToDate").value;
+  const tbody = document.querySelector("#historicalTable tbody");
+
+  tbody.innerHTML = "";
+
+  if (!route || !fromDate || !toDate) {
+    showToast("Please fill all fields", true);
+    return;
+  }
+
+  const startDate = new Date(fromDate);
+  const endDate = new Date(toDate);
+
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().slice(0, 10);
+
+    ["Morning", "Evening"].forEach(shift => {
+      const statusKey = `status_${route}_${shift}_${dateStr}`;
+      const statusObj = JSON.parse(localStorage.getItem(statusKey)) || {};
+
+      Object.keys(statusObj).forEach(society => {
+        const status = statusObj[society];
+        const duration = (status.arrival && status.departure) ? 
+          calculateDuration(status.arrival, status.departure) : "-";
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${dateStr}</td>
+          <td>${shift}</td>
+          <td>${society}</td>
+          <td>${status.arrival || "-"}</td>
+          <td>${status.departure || "-"}</td>
+          <td>${duration}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    });
+  }
+
+  if (tbody.children.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6">No data found for selected period</td></tr>';
+  }
 }
 
 function calculateDuration(start, end) {
