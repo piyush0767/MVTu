@@ -64,19 +64,38 @@ function loadSocietiesForDriver(route, shift) {
 
   societies.forEach((society, index) => {
     const div = document.createElement("div");
+    const status = savedStatus[society] || {};
+    
     div.innerHTML = `
-      <b>${index + 1}. ${society}</b>
-      <button onclick="markStatus('${route}','${shift}','${society}','arrival')">Arrival</button>
-      <button onclick="markStatus('${route}','${shift}','${society}','departure')">Departure</button>
-      <span id="status_${route}_${shift}_${society.replace(/\s+/g, '_')}"></span>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h4 style="margin: 0; color: var(--gray-800);">
+          <span style="color: var(--primary); font-weight: 700;">${index + 1}.</span> ${society}
+        </h4>
+        <div style="display: flex; gap: 0.5rem;">
+          ${status.arrival ? '<span style="color: var(--secondary);">🟢</span>' : ''}
+          ${status.departure ? '<span style="color: var(--danger);">🔴</span>' : ''}
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+        <button onclick="markStatus('${route}','${shift}','${society}','arrival')" 
+                style="flex: 1;" 
+                ${status.arrival ? 'disabled' : ''}>
+          🟢 ${status.arrival ? 'Arrived' : 'Mark Arrival'}
+        </button>
+        <button onclick="markStatus('${route}','${shift}','${society}','departure')" 
+                style="flex: 1;" 
+                ${status.departure ? 'disabled' : ''}>
+          🔴 ${status.departure ? 'Departed' : 'Mark Departure'}
+        </button>
+      </div>
+      <div id="status_${route}_${shift}_${society.replace(/\s+/g, '_')}" 
+           style="font-size: 0.875rem; color: var(--gray-600);">
+        ${status.arrival ? `🟢 Arrived: ${status.arrival}` : ''}
+        ${status.arrival && status.departure ? ' | ' : ''}
+        ${status.departure ? `🔴 Departed: ${status.departure}` : ''}
+      </div>
     `;
     societyList.appendChild(div);
-
-    // Restore saved status
-    const status = savedStatus[society] || {};
-    const span = document.getElementById(`status_${route}_${shift}_${society.replace(/\s+/g, '_')}`);
-    if (status.arrival) span.innerHTML += " 🟢 Arrived";
-    if (status.departure) span.innerHTML += " 🔴 Departed";
   });
 }
 
@@ -129,18 +148,46 @@ function adminLogin() {
 
 // ========== ADMIN TAB MANAGEMENT ==========
 function showAdminTab(tabName) {
-  // Hide all tabs
+  // Remove active class from all tab buttons
+  document.querySelectorAll('.admin-tabs button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // Add active class to clicked button
+  event.target.classList.add('active');
+
+  // Hide all tabs with fade effect
   document.querySelectorAll('.admin-tab').forEach(tab => {
     tab.classList.add('hidden');
   });
 
-  // Show selected tab
+  // Show selected tab with fade effect
   const selectedTab = document.getElementById('adminTab-' + tabName);
   if (selectedTab) {
-    selectedTab.classList.remove('hidden');
+    setTimeout(() => {
+      selectedTab.classList.remove('hidden');
+    }, 150);
 
-    if (tabName === 'routes') {
-      populateRouteSelector();
+    // Load tab-specific data
+    switch(tabName) {
+      case 'routes':
+        populateRouteSelector();
+        break;
+      case 'logs':
+        populateFilterDropdowns();
+        break;
+      case 'summary':
+        populateSummaryDropdowns();
+        break;
+      case 'comparison':
+        populateAllDropdowns();
+        break;
+      case 'society':
+        populateAllDropdowns();
+        break;
+      case 'historical':
+        populateAllDropdowns();
+        break;
     }
   }
 }
