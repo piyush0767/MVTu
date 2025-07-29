@@ -1,143 +1,404 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Milk Route Tracker</title>
+  <title>Milk Route Tracker - Advanced Analytics</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
   <!-- Language Toggle -->
-  <button onclick="toggleLanguage()" class="language-btn">🌐 Toggle Language</button>
+  <button onclick="toggleLanguage()" class="language-btn"><i class="fas fa-globe"></i> Toggle Language</button>
 
   <!-- Driver Login -->
   <div id="driverLoginSection">
-    <h2>Driver Login</h2>
-    <label id="labelRoute">Route Number</label><br>
-    <input id="routeNumber" type="text"><br>
+    <div class="login-card">
+      <div class="login-header">
+        <i class="fas fa-truck"></i>
+        <h2>Driver Login</h2>
+      </div>
+      <div class="form-group">
+        <label id="labelRoute"><i class="fas fa-route"></i> Route Number</label>
+        <input id="routeNumber" type="text" placeholder="Enter route number">
+      </div>
 
-    <label id="labelPassword">Password</label><br>
-    <input type="password" id="password"><br>
+      <div class="form-group">
+        <label id="labelPassword"><i class="fas fa-lock"></i> Password</label>
+        <input type="password" id="password" placeholder="Enter password">
+      </div>
 
-    <label id="shiftLabel">Select Shift</label><br>
-    <select id="shiftSelector">
-      <option>Morning</option>
-      <option>Evening</option>
-    </select><br><br>
+      <div class="form-group">
+        <label id="shiftLabel"><i class="fas fa-clock"></i> Select Shift</label>
+        <select id="shiftSelector">
+          <option>Morning</option>
+          <option>Evening</option>
+        </select>
+      </div>
 
-    <button id="driverLoginButton" onclick="driverLogin()">Login</button>
+      <button id="driverLoginButton" onclick="driverLogin()" class="primary-btn">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </button>
+    </div>
   </div>
 
   <!-- Admin Login -->
   <div id="adminLoginSection">
-    <h2 id="adminLoginTitle">Admin Login</h2>
-    <input id="adminUsername" placeholder="Username" type="text"><br>
-    <input type="password" id="adminPassword" placeholder="Password"><br>
-    <button onclick="adminLogin()">Login as Admin</button>
+    <div class="login-card">
+      <div class="login-header">
+        <i class="fas fa-user-shield"></i>
+        <h2 id="adminLoginTitle">Admin Dashboard</h2>
+      </div>
+      <div class="form-group">
+        <input id="adminUsername" placeholder="Admin Username" type="text">
+      </div>
+      <div class="form-group">
+        <input type="password" id="adminPassword" placeholder="Admin Password">
+      </div>
+      <button onclick="adminLogin()" class="primary-btn">
+        <i class="fas fa-sign-in-alt"></i> Access Dashboard
+      </button>
+    </div>
   </div>
 
-  <!-- Driver Section (Initially Hidden) -->
+  <!-- Driver Section -->
   <div class="driver-section hidden">
-    <h3>Welcome, Driver!</h3>
-    <p id="driverRoute"></p>
-    <p id="shiftDisplay"></p>
-    <p id="loginTime"></p>
-    <div id="societyList"></div>
+    <div class="driver-header">
+      <h3><i class="fas fa-truck"></i> Welcome, Driver!</h3>
+      <div class="driver-info">
+        <div class="info-card">
+          <i class="fas fa-route"></i>
+          <span id="driverRoute"></span>
+        </div>
+        <div class="info-card">
+          <i class="fas fa-clock"></i>
+          <span id="shiftDisplay"></span>
+        </div>
+        <div class="info-card">
+          <i class="fas fa-sign-in-alt"></i>
+          <span id="loginTime"></span>
+        </div>
+      </div>
+    </div>
+    <div id="societyList" class="society-grid"></div>
   </div>
 
-  <!-- Admin Panel (Initially Hidden) -->
+  <!-- Advanced Admin Panel -->
   <div class="admin-section hidden">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+      <h1><i class="fas fa-chart-line"></i> Milk Route Analytics Dashboard</h1>
+      <div class="header-stats">
+        <div class="stat-card">
+          <i class="fas fa-route"></i>
+          <div class="stat-info">
+            <span class="stat-number" id="totalRoutes">0</span>
+            <span class="stat-label">Total Routes</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-building"></i>
+          <div class="stat-info">
+            <span class="stat-number" id="totalSocieties">0</span>
+            <span class="stat-label">Total Societies</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-calendar-check"></i>
+          <div class="stat-info">
+            <span class="stat-number" id="todayVisits">0</span>
+            <span class="stat-label">Today's Visits</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-percentage"></i>
+          <div class="stat-info">
+            <span class="stat-number" id="completionRate">0%</span>
+            <span class="stat-label">Completion Rate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Navigation Tabs -->
     <div class="admin-tabs">
-      <button onclick="showAdminTab('routes')">🚚 Routes</button>
-      <button onclick="showAdminTab('logs')">📋 Logs</button>
-      <button onclick="showAdminTab('summary')">📊 Summary</button>
-      <button onclick="showAdminTab('settings')">⚙️ Settings</button>
+      <button onclick="showAdminTab('dashboard')" class="tab-btn active">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </button>
+      <button onclick="showAdminTab('routes')" class="tab-btn">
+        <i class="fas fa-route"></i> Routes
+      </button>
+      <button onclick="showAdminTab('analytics')" class="tab-btn">
+        <i class="fas fa-chart-bar"></i> Analytics
+      </button>
+      <button onclick="showAdminTab('logs')" class="tab-btn">
+        <i class="fas fa-clipboard-list"></i> Logs
+      </button>
+      <button onclick="showAdminTab('reports')" class="tab-btn">
+        <i class="fas fa-file-alt"></i> Reports
+      </button>
+      <button onclick="showAdminTab('settings')" class="tab-btn">
+        <i class="fas fa-cog"></i> Settings
+      </button>
     </div>
 
-    <!-- ROUTE MANAGEMENT TAB -->
-    <div class="admin-tab" id="adminTab-routes">
-      <h2>🚚 Route & Society Management</h2>
+    <!-- DASHBOARD TAB -->
+    <div class="admin-tab" id="adminTab-dashboard">
+      <div class="dashboard-grid">
+        <!-- Charts Section -->
+        <div class="chart-container">
+          <h3><i class="fas fa-chart-pie"></i> Route Performance</h3>
+          <canvas id="routeChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+          <h3><i class="fas fa-chart-line"></i> Daily Visits Trend</h3>
+          <canvas id="trendChart"></canvas>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-panel">
+          <h3><i class="fas fa-history"></i> Recent Activity</h3>
+          <div id="recentActivity" class="activity-list"></div>
+        </div>
+
+        <!-- Top Performers -->
+        <div class="performers-panel">
+          <h3><i class="fas fa-trophy"></i> Top Performing Routes</h3>
+          <div id="topPerformers"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS TAB -->
+    <div class="admin-tab hidden" id="adminTab-analytics">
+      <div class="analytics-controls">
+        <div class="date-range">
+          <label>From:</label>
+          <input type="date" id="analyticsFromDate">
+          <label>To:</label>
+          <input type="date" id="analyticsToDate">
+          <button onclick="generateAnalytics()" class="primary-btn">
+            <i class="fas fa-chart-bar"></i> Generate Analytics
+          </button>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="metric-card">
+          <h4>Average Visit Duration</h4>
+          <div class="metric-value" id="avgDuration">--</div>
+        </div>
+        <div class="metric-card">
+          <h4>Peak Visit Hours</h4>
+          <div class="metric-value" id="peakHours">--</div>
+        </div>
+        <div class="metric-card">
+          <h4>Route Efficiency</h4>
+          <div class="metric-value" id="routeEfficiency">--</div>
+        </div>
+        <div class="metric-card">
+          <h4>Society Coverage</h4>
+          <div class="metric-value" id="societyCoverage">--</div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-container">
+          <h3>Hourly Distribution</h3>
+          <canvas id="hourlyChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h3>Shift Comparison</h3>
+          <canvas id="shiftChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROUTES TAB (Enhanced) -->
+    <div class="admin-tab hidden" id="adminTab-routes">
+      <div class="routes-header">
+        <h2><i class="fas fa-route"></i> Route & Society Management</h2>
+        <div class="route-stats">
+          <div class="mini-stat">
+            <span id="activeRoutes">0</span> Active Routes
+          </div>
+          <div class="mini-stat">
+            <span id="avgSocieties">0</span> Avg Societies/Route
+          </div>
+        </div>
+      </div>
       
-      <!-- Add New Route -->
-      <div class="section">
-        <h3>Add New Route</h3>
-        <input id="newRouteNumber" placeholder="Route Number" type="text">
-        <button onclick="addRoute()">Add Route</button>
-      </div>
+      <div class="routes-grid">
+        <!-- Quick Add Section -->
+        <div class="section quick-add">
+          <h3><i class="fas fa-plus-circle"></i> Quick Add Route</h3>
+          <div class="quick-form">
+            <input id="newRouteNumber" placeholder="Route Number" type="text">
+            <button onclick="addRoute()" class="add-btn">
+              <i class="fas fa-plus"></i> Add Route
+            </button>
+          </div>
+        </div>
 
-      <!-- Bulk Add Route -->
-      <div class="section">
-        <h3>Bulk Add Route & Societies</h3>
-        <input id="bulkRouteNumber" placeholder="Route Number" type="text"><br>
-        <textarea id="bulkSocieties" placeholder="Paste societies (one per line or comma separated)"></textarea><br>
-        <button onclick="bulkAddRoute()">Bulk Add</button>
-      </div>
+        <!-- Bulk Operations -->
+        <div class="section bulk-section">
+          <h3><i class="fas fa-upload"></i> Bulk Operations</h3>
+          <input id="bulkRouteNumber" placeholder="Route Number" type="text">
+          <textarea id="bulkSocieties" placeholder="Paste societies (one per line or comma separated)"></textarea>
+          <button onclick="bulkAddRoute()" class="primary-btn">
+            <i class="fas fa-upload"></i> Bulk Import
+          </button>
+        </div>
 
-      <!-- Edit Existing Route -->
-      <div class="section">
-        <h3>Edit Route</h3>
-        <select id="routeSelector" onchange="loadSocietiesForEdit()"></select>
-        <div id="societyEditor"></div>
-        <input id="newSocietyName" placeholder="New Society Name" type="text">
-        <button onclick="addSociety()">Add Society</button>
+        <!-- Route Editor -->
+        <div class="section route-editor">
+          <h3><i class="fas fa-edit"></i> Edit Routes</h3>
+          <select id="routeSelector" onchange="loadSocietiesForEdit()">
+            <option value="">Select Route to Edit</option>
+          </select>
+          <div id="societyEditor"></div>
+          <div class="add-society">
+            <input id="newSocietyName" placeholder="New Society Name" type="text">
+            <button onclick="addSociety()" class="add-btn">
+              <i class="fas fa-plus"></i> Add Society
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- LOGS TAB -->
+    <!-- LOGS TAB (Enhanced) -->
     <div class="admin-tab hidden" id="adminTab-logs">
-      <h2>📋 Driver Visit Logs</h2>
-      <div class="filters">
-        <label>Date:</label>
-        <input type="date" id="filterDate">
-        
-        <label>Route:</label>
-        <select id="filterRoute"></select>
-        
-        <label>Shift:</label>
-        <select id="filterShift">
-          <option value="">All Shifts</option>
-          <option value="Morning">Morning</option>
-          <option value="Evening">Evening</option>
-        </select>
-        
-        <button onclick="applyAdminFilters()">🔍 Apply Filters</button>
-      </div>
-      <div id="adminStatusTable"></div>
-    </div>
-
-    <!-- SUMMARY TAB -->
-    <div class="admin-tab hidden" id="adminTab-summary">
-      <h2>📊 Daily Visit Summary</h2>
-      <div class="filters">
-        <label>Date:</label>
-        <input type="date" id="summaryDateFilter">
-        
-        <label>Route:</label>
-        <select id="summaryRouteFilter"></select>
-        
-        <button onclick="loadAdminSummary()">🔍 View Summary</button>
-        <button onclick="exportCSV()">📤 Export CSV</button>
+      <div class="logs-header">
+        <h2><i class="fas fa-clipboard-list"></i> Driver Visit Logs</h2>
+        <div class="export-options">
+          <button onclick="exportLogs('csv')" class="export-btn">
+            <i class="fas fa-file-csv"></i> Export CSV
+          </button>
+          <button onclick="exportLogs('json')" class="export-btn">
+            <i class="fas fa-file-code"></i> Export JSON
+          </button>
+        </div>
       </div>
 
-      <table id="summaryTable">
-        <thead>
-          <tr>
-            <th>Society</th>
-            <th>Arrival</th>
-            <th>Departure</th>
-            <th>Duration</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="advanced-filters">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label><i class="fas fa-calendar"></i> Date Range</label>
+            <input type="date" id="filterDateFrom">
+            <input type="date" id="filterDateTo">
+          </div>
+          <div class="filter-group">
+            <label><i class="fas fa-route"></i> Route</label>
+            <select id="filterRoute">
+              <option value="">All Routes</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label><i class="fas fa-clock"></i> Shift</label>
+            <select id="filterShift">
+              <option value="">All Shifts</option>
+              <option value="Morning">Morning</option>
+              <option value="Evening">Evening</option>
+            </select>
+          </div>
+          <button onclick="applyAdvancedFilters()" class="primary-btn">
+            <i class="fas fa-search"></i> Apply Filters
+          </button>
+        </div>
+      </div>
+
+      <div class="logs-summary">
+        <div class="summary-stat">
+          <span id="totalLogs">0</span> Total Logs
+        </div>
+        <div class="summary-stat">
+          <span id="completedVisits">0</span> Completed Visits
+        </div>
+        <div class="summary-stat">
+          <span id="pendingVisits">0</span> Pending Visits
+        </div>
+      </div>
+
+      <div id="adminStatusTable" class="enhanced-table"></div>
     </div>
 
-    <!-- SETTINGS TAB -->
+    <!-- REPORTS TAB -->
+    <div class="admin-tab hidden" id="adminTab-reports">
+      <div class="reports-header">
+        <h2><i class="fas fa-file-alt"></i> Advanced Reports</h2>
+      </div>
+
+      <div class="report-types">
+        <div class="report-card" onclick="generateReport('daily')">
+          <i class="fas fa-calendar-day"></i>
+          <h4>Daily Summary</h4>
+          <p>Complete daily performance overview</p>
+        </div>
+        <div class="report-card" onclick="generateReport('weekly')">
+          <i class="fas fa-calendar-week"></i>
+          <h4>Weekly Analysis</h4>
+          <p>Week-over-week performance trends</p>
+        </div>
+        <div class="report-card" onclick="generateReport('monthly')">
+          <i class="fas fa-calendar-alt"></i>
+          <h4>Monthly Report</h4>
+          <p>Comprehensive monthly insights</p>
+        </div>
+        <div class="report-card" onclick="generateReport('efficiency')">
+          <i class="fas fa-tachometer-alt"></i>
+          <h4>Efficiency Report</h4>
+          <p>Route optimization recommendations</p>
+        </div>
+      </div>
+
+      <div id="reportContent" class="report-content"></div>
+    </div>
+
+    <!-- SETTINGS TAB (Enhanced) -->
     <div class="admin-tab hidden" id="adminTab-settings">
-      <h2>⚙️ Admin Settings</h2>
-      <button onclick="resetApp()">🧨 Reset All Data</button>
+      <div class="settings-grid">
+        <div class="setting-section">
+          <h3><i class="fas fa-database"></i> Data Management</h3>
+          <div class="setting-item">
+            <button onclick="backupData()" class="primary-btn">
+              <i class="fas fa-download"></i> Backup Data
+            </button>
+            <p>Download complete system backup</p>
+          </div>
+          <div class="setting-item">
+            <input type="file" id="restoreFile" accept=".json" style="display:none">
+            <button onclick="document.getElementById('restoreFile').click()" class="secondary-btn">
+              <i class="fas fa-upload"></i> Restore Data
+            </button>
+            <p>Upload backup file to restore</p>
+          </div>
+        </div>
+
+        <div class="setting-section">
+          <h3><i class="fas fa-users"></i> Admin Management</h3>
+          <div class="admin-list" id="adminList"></div>
+          <div class="add-admin">
+            <input id="newAdminUsername" placeholder="New Admin Username">
+            <input id="newAdminPassword" type="password" placeholder="Password">
+            <button onclick="addAdmin()" class="add-btn">
+              <i class="fas fa-user-plus"></i> Add Admin
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-section danger-zone">
+          <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+          <button onclick="resetApp()" class="danger-btn">
+            <i class="fas fa-trash-alt"></i> Reset All Data
+          </button>
+          <p class="warning">This action cannot be undone!</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -145,7 +406,9 @@
   <div id="toast" class="toast"></div>
 
   <!-- Reset App -->
-  <button onclick="resetApp()" class="reset-btn">🔁 Reset App</button>
+  <button onclick="resetApp()" class="reset-btn">
+    <i class="fas fa-redo"></i> Reset App
+  </button>
 
   <script src="script.js"></script>
 </body>
